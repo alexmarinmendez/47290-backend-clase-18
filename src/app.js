@@ -1,21 +1,26 @@
 import express from 'express'
-import cookieParser from 'cookie-parser'
+import session from 'express-session'
 
 const app = express()
-app.use(cookieParser('victoriasecret'))
+app.use(session({
+    secret: 'victoriasecret',
+    resave: true,
+    saveUninitialized: true
+}))
 
 app.get('/', (req, res) => {
     //despues de hacer la verificacion en la base de datos
     //se identifica al user como 'alexmarinmendez' de rol 'user'
     const user = {
         username: 'alexmarinmendez',
-        role: 'user'
+        role: 'admin'
     }
-    res.cookie('user', user, { signed: true }).send('ok')
+    req.session.user = user
+    res.send('ok')
 })
 
 app.get('/private', (req, res) => {
-    if (req.signedCookies.user?.role === 'admin') {
+    if (req.session.user?.role === 'admin') {
         res.send('Bienvenido!')
     } else {
         res.send('Not allowed!')
@@ -23,7 +28,10 @@ app.get('/private', (req, res) => {
 })
 
 app.get('/logout', (req, res) => {
-    res.clearCookie('user').send('ok')
+    req.session.destroy(err => {
+        if (err) return res.send('Logout error')
+        return res.send('Logout ok')
+    })
 })
 
 app.listen(8080, () => console.log('Server Up'))
