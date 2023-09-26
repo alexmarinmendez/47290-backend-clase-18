@@ -2,7 +2,7 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 
 const app = express()
-app.use(cookieParser())
+app.use(cookieParser('victoriasecret'))
 
 app.get('/', (req, res) => {
     //despues de hacer la verificacion en la base de datos
@@ -11,11 +11,11 @@ app.get('/', (req, res) => {
         username: 'alexmarinmendez',
         role: 'user'
     }
-    res.cookie('user', user).send('ok')
+    res.cookie('user', user, { signed: true }).send('ok')
 })
 
 app.get('/private', (req, res) => {
-    if (req.cookies.user?.role === 'admin') {
+    if (req.signedCookies.user?.role === 'admin') {
         res.send('Bienvenido!')
     } else {
         res.send('Not allowed!')
