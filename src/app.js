@@ -14,6 +14,14 @@ app.use(session({
     saveUninitialized: true
 }))
 
+const auth = (req, res, next) => {
+    if (req.session.user?.role === 'admin') {
+        next()
+    } else {
+        res.send('Not allowed!')
+    }
+}
+
 app.get('/', (req, res) => {
     //despues de hacer la verificacion en la base de datos
     //se identifica al user como 'alexmarinmendez' de rol 'user'
@@ -25,12 +33,8 @@ app.get('/', (req, res) => {
     res.send('ok')
 })
 
-app.get('/private', (req, res) => {
-    if (req.session.user?.role === 'admin') {
-        res.send('Bienvenido!')
-    } else {
-        res.send('Not allowed!')
-    }
+app.get('/private', auth, (req, res) => {
+    res.send('Bienvenido!')
 })
 
 app.get('/logout', (req, res) => {
