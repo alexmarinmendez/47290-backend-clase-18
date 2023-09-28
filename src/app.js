@@ -1,14 +1,14 @@
 import express from 'express'
 import session from 'express-session'
-import FileStore from 'session-file-store'
+import MongoStore from 'connect-mongo'
 import userRouter from './routers/user.router.js'
 
 const app = express()
-const fileStore = new FileStore(session)
 
 app.use(session({
-    store: new fileStore({
-        path: './sessions'
+    store: MongoStore.create({
+        mongoUrl: 'mongodb://localhost:27017',
+        dbName: 'sessions'
     }),
     secret: 'victoriasecret',
     resave: true,
